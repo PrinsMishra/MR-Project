@@ -1,0 +1,478 @@
+{
+  "institution": "Northbridge Institute of Technology (NITech)",
+  "document_reference": "NIT-ACAD-REG-2026-V1",
+  "courses": [
+    { "code": "CS101", "title": "Python Programming", "credits": 4, "is_offered": true },
+    { "code": "CS201", "title": "Data Structures", "credits": 4, "is_offered": true },
+    { "code": "CS301", "title": "Machine Learning", "credits": 4, "is_offered": true },
+    { "code": "CS401", "title": "Deep Learning", "credits": 4, "is_offered": true },
+    { "code": "CS402", "title": "Natural Language Processing", "credits": 3, "is_offered": true }
+  ],
+  "rules": [
+    {
+      "id": "R001",
+      "type": "prerequisite",
+      "title": "CS101 Prerequisites",
+      "description": "CS101 (Python Programming) has no prerequisites.",
+      "target_courses": ["CS101"],
+      "prerequisites": [],
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "1.2",
+        "passage_id": "P001",
+        "text": "Rule R001: CS101 (Python Programming) is an introductory foundation course and has no formal prerequisites."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R002",
+      "type": "prerequisite",
+      "title": "CS201 Prerequisite Requirement",
+      "description": "CS201 requires completion of CS101.",
+      "target_courses": ["CS201"],
+      "prerequisites": [
+        { "course_code": "CS101", "waiver_allowed": true }
+      ],
+      "waiver_allowed": true,
+      "waiver_type": "faculty_waiver",
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "1.2",
+        "passage_id": "P002",
+        "text": "Rule R002: CS201 (Data Structures) requires prior successful completion of CS101 (Python Programming) as a mandatory prerequisite."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R003",
+      "type": "prerequisite",
+      "title": "CS301 Prerequisite Requirement",
+      "description": "CS301 requires completion of both CS101 and CS201.",
+      "target_courses": ["CS301"],
+      "prerequisites": [
+        { "course_code": "CS101", "waiver_allowed": true },
+        { "course_code": "CS201", "waiver_allowed": true }
+      ],
+      "waiver_allowed": true,
+      "waiver_type": "faculty_waiver",
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "1.2",
+        "passage_id": "P003",
+        "text": "Rule R003: CS301 (Machine Learning) requires prior successful completion of both CS101 (Python Programming) and CS201 (Data Structures) as mandatory prerequisites."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R004",
+      "type": "prerequisite",
+      "title": "CS401 Prerequisite Requirement",
+      "description": "CS401 requires completion of CS301.",
+      "target_courses": ["CS401"],
+      "prerequisites": [
+        { "course_code": "CS301", "waiver_allowed": true }
+      ],
+      "waiver_allowed": true,
+      "waiver_type": "faculty_waiver",
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "1.2",
+        "passage_id": "P004",
+        "text": "Rule R004: CS401 (Deep Learning) requires prior successful completion of CS301 (Machine Learning) as a mandatory prerequisite."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R005",
+      "type": "prerequisite",
+      "title": "CS402 Prerequisite Requirement",
+      "description": "CS402 requires completion of CS301.",
+      "target_courses": ["CS402"],
+      "prerequisites": [
+        { "course_code": "CS301", "waiver_allowed": true }
+      ],
+      "waiver_allowed": true,
+      "waiver_type": "faculty_waiver",
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "1.2",
+        "passage_id": "P005",
+        "text": "Rule R005: CS402 (Natural Language Processing) requires prior successful completion of CS301 (Machine Learning) as a mandatory prerequisite."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R006",
+      "type": "waiver_policy",
+      "title": "Prerequisite Waiver Authority",
+      "description": "A prerequisite can only be waived with explicit faculty approval.",
+      "target_courses": [],
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "1.3",
+        "passage_id": "P006",
+        "text": "Rule R006: A prerequisite requirement for any course can only be waived with explicit, documented approval from the course faculty instructor."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R007",
+      "type": "minimum_cgpa",
+      "title": "CS201 Minimum CGPA",
+      "description": "Students must have a CGPA of at least 6.0 to register for CS201.",
+      "target_courses": ["CS201"],
+      "condition": {
+        "field": "cgpa",
+        "operator": ">=",
+        "value": 6.0
+      },
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "2.1",
+        "passage_id": "P007",
+        "text": "Rule R007: Students must maintain a cumulative grade point average (CGPA) of at least 6.0 on a 10.0 scale to be eligible to register for CS201."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R008",
+      "type": "minimum_cgpa",
+      "title": "CS301 Minimum CGPA",
+      "description": "Students must have a CGPA of at least 7.0 to register for CS301.",
+      "target_courses": ["CS301"],
+      "condition": {
+        "field": "cgpa",
+        "operator": ">=",
+        "value": 7.0
+      },
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "2.1",
+        "passage_id": "P008",
+        "text": "Rule R008: Students must maintain a cumulative grade point average (CGPA) of at least 7.0 on a 10.0 scale to be eligible to register for CS301."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R009",
+      "type": "minimum_cgpa",
+      "title": "CS401 Minimum CGPA",
+      "description": "Students must have a CGPA of at least 7.5 to register for CS401.",
+      "target_courses": ["CS401"],
+      "condition": {
+        "field": "cgpa",
+        "operator": ">=",
+        "value": 7.5
+      },
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "2.1",
+        "passage_id": "P009",
+        "text": "Rule R009: Students must maintain a cumulative grade point average (CGPA) of at least 7.5 on a 10.0 scale to be eligible to register for CS401."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R010",
+      "type": "minimum_cgpa",
+      "title": "CS402 Minimum CGPA",
+      "description": "Students must have a CGPA of at least 7.0 to register for CS402.",
+      "target_courses": ["CS402"],
+      "condition": {
+        "field": "cgpa",
+        "operator": ">=",
+        "value": 7.0
+      },
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "2.1",
+        "passage_id": "P010",
+        "text": "Rule R010: Students must maintain a cumulative grade point average (CGPA) of at least 7.0 on a 10.0 scale to be eligible to register for CS402."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R011",
+      "type": "probation_restriction",
+      "title": "Probation Restriction on 400-level Courses",
+      "description": "Students on academic probation cannot register for CS401 or CS402.",
+      "target_courses": ["CS401", "CS402"],
+      "condition": {
+        "field": "on_probation",
+        "operator": "==",
+        "value": false
+      },
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "2.2",
+        "passage_id": "P011",
+        "text": "Rule R011: Students currently placed on academic probation are strictly prohibited from registering for advanced 400-level elective courses, specifically CS401 and CS402."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R012",
+      "type": "credit_limit",
+      "title": "Standard Credit Limit (24 Credits)",
+      "description": "The normal semester credit limit is 24 credits.",
+      "target_courses": [],
+      "condition": {
+        "field": "total_credits",
+        "operator": "<=",
+        "value": 24
+      },
+      "waiver_allowed": true,
+      "waiver_type": "credit_exception",
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "3.1",
+        "passage_id": "P012",
+        "text": "Rule R012: The standard semester credit limit for all undergraduate students is 24 credits."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R013",
+      "type": "credit_exception",
+      "title": "Credit Overload Exception (up to 28 Credits)",
+      "description": "Final-year students with CGPA at least 8.0 and department approval may register for up to 28 credits.",
+      "target_courses": [],
+      "condition": {
+        "logical_op": "AND",
+        "conditions": [
+          { "field": "year", "operator": "==", "value": 4 },
+          { "field": "cgpa", "operator": ">=", "value": 8.0 },
+          { "field": "department_credit_approval", "operator": "==", "value": true }
+        ]
+      },
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "3.1",
+        "passage_id": "P013",
+        "text": "Rule R013: Final-year (Year 4) students who possess a CGPA of at least 8.0 and obtain explicit Department Chair approval may register for an overload of up to 28 credits in a semester."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R014",
+      "type": "credit_limit",
+      "title": "Absolute Maximum Credit Ceiling (28 Credits)",
+      "description": "No student may register for more than 28 credits under any circumstances.",
+      "target_courses": [],
+      "condition": {
+        "field": "total_credits",
+        "operator": "<=",
+        "value": 28
+      },
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "3.1",
+        "passage_id": "P014",
+        "text": "Rule R014: Under no circumstances may any student register for more than 28 credits in a single semester. The 28-credit ceiling is an absolute institutional limit with no exceptions."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R015",
+      "type": "integrity_invariant",
+      "title": "Total Credit Calculation",
+      "description": "The credit limit includes all previously registered credits plus the credits of the requested course.",
+      "target_courses": [],
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "3.1",
+        "passage_id": "P015",
+        "text": "Rule R015: In calculating whether a student complies with the semester credit limit, the total credit count includes all previously confirmed registered credits in the current semester plus the credit weight of the newly requested course."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R016",
+      "type": "year_standing",
+      "title": "CS301 Year Standing Requirement",
+      "description": "CS301 is available only to students in year 2 or later.",
+      "target_courses": ["CS301"],
+      "condition": {
+        "field": "year",
+        "operator": ">=",
+        "value": 2
+      },
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "4.1",
+        "passage_id": "P016",
+        "text": "Rule R016: CS301 (Machine Learning) is restricted to students who have achieved at least second-year academic standing (Year 2, 3, or 4)."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R017",
+      "type": "year_standing",
+      "title": "CS401 Year Standing Requirement",
+      "description": "CS401 is available only to students in year 3 or later.",
+      "target_courses": ["CS401"],
+      "condition": {
+        "field": "year",
+        "operator": ">=",
+        "value": 3
+      },
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "4.1",
+        "passage_id": "P017",
+        "text": "Rule R017: CS401 (Deep Learning) is restricted to students who have achieved at least third-year academic standing (Year 3 or 4)."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R018",
+      "type": "year_standing",
+      "title": "CS402 Year Standing Requirement",
+      "description": "CS402 is available only to students in year 3 or later.",
+      "target_courses": ["CS402"],
+      "condition": {
+        "field": "year",
+        "operator": ">=",
+        "value": 3
+      },
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "4.1",
+        "passage_id": "P018",
+        "text": "Rule R018: CS402 (Natural Language Processing) is restricted to students who have achieved at least third-year academic standing (Year 3 or 4)."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R019",
+      "type": "repeat_restriction",
+      "title": "Course Repetition Prohibition",
+      "description": "Students cannot register for a course they have already completed.",
+      "target_courses": [],
+      "condition": {
+        "field": "course_already_completed",
+        "operator": "==",
+        "value": false
+      },
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "4.2",
+        "passage_id": "P019",
+        "text": "Rule R019: A student cannot register for a course that they have already completed and passed in a previous academic term."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R020",
+      "type": "course_offered",
+      "title": "Course Offering Requirement",
+      "description": "A course must be offered in the current semester to be registered.",
+      "target_courses": [],
+      "condition": {
+        "field": "course_offered",
+        "operator": "==",
+        "value": true
+      },
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "4.2",
+        "passage_id": "P020",
+        "text": "Rule R020: A course must be actively scheduled and offered in the current semester timetable for registration to proceed."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R021",
+      "type": "waiver_policy",
+      "title": "Course-Prerequisite Specificity for Waivers",
+      "description": "Faculty prerequisite waivers apply only to the explicitly approved course and prerequisite.",
+      "target_courses": [],
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "5.1",
+        "passage_id": "P021",
+        "text": "Rule R021: A faculty prerequisite waiver is strictly course-specific and applies solely to the explicitly approved course and specified prerequisite."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R022",
+      "type": "approval_policy",
+      "title": "Credit Approval Scope Limitation",
+      "description": "Department approval for additional credits does not waive prerequisites or CGPA requirements.",
+      "target_courses": [],
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "5.1",
+        "passage_id": "P022",
+        "text": "Rule R022: Department approval granted for an overload of additional credits (under Rule R013) pertains solely to the semester credit maximum and does not waive, relax, or substitute for course prerequisites or minimum CGPA thresholds."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R023",
+      "type": "admin_hold",
+      "title": "Administrative Registration Hold",
+      "description": "A student with an outstanding registration hold cannot register for any course.",
+      "target_courses": [],
+      "condition": {
+        "field": "registration_hold",
+        "operator": "==",
+        "value": false
+      },
+      "waiver_allowed": false,
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "5.2",
+        "passage_id": "P023",
+        "text": "Rule R023: Any student with an outstanding administrative, financial, or disciplinary registration hold is strictly blocked from registering for any course, regardless of academic standing."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R024",
+      "type": "integrity_invariant",
+      "title": "Independence of Hold and Probation",
+      "description": "Academic probation does not automatically remove an existing registration hold.",
+      "target_courses": [],
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "5.2",
+        "passage_id": "P024",
+        "text": "Rule R024: The placement or removal of academic probation does not automatically release or modify an active administrative registration hold."
+      },
+      "status": "approved"
+    },
+    {
+      "id": "R025",
+      "type": "integrity_invariant",
+      "title": "Conjunctive Eligibility Invariant",
+      "description": "A course-registration request is eligible only when every applicable requirement is satisfied.",
+      "target_courses": [],
+      "source": {
+        "document": "academic_policy_nitech.txt",
+        "section": "5.2",
+        "passage_id": "P025",
+        "text": "Rule R025: A course registration request is eligible if and only if every applicable institutional rule, prerequisite, GPA threshold, credit limit, and administrative clearance is satisfied concurrently without contradiction."
+      },
+      "status": "approved"
+    }
+  ]
+}
+

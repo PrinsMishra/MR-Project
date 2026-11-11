@@ -1,0 +1,197 @@
+{
+  "students": [
+    {
+      "student_id": "S001",
+      "name": "Alice Johnson",
+      "year": 2,
+      "cgpa": 8.5,
+      "current_registered_credits": 16,
+      "completed_courses": ["CS101", "CS201"],
+      "on_probation": false,
+      "registration_hold": false,
+      "department_credit_approval": false,
+      "faculty_waivers": []
+    },
+    {
+      "student_id": "S002",
+      "name": "Bob Smith",
+      "year": 2,
+      "cgpa": 8.0,
+      "current_registered_credits": 16,
+      "completed_courses": ["CS101"],
+      "on_probation": false,
+      "registration_hold": false,
+      "department_credit_approval": false,
+      "faculty_waivers": []
+    },
+    {
+      "student_id": "S003",
+      "name": "Charlie Davis",
+      "year": 2,
+      "cgpa": 7.8,
+      "current_registered_credits": 12,
+      "completed_courses": ["CS101"],
+      "on_probation": false,
+      "registration_hold": false,
+      "department_credit_approval": false,
+      "faculty_waivers": [
+        {
+          "course_code": "CS301",
+          "waived_prerequisite": "CS201",
+          "approved_by": "Dr. Alan Turing"
+        }
+      ]
+    },
+    {
+      "student_id": "S004",
+      "name": "David Miller",
+      "year": 2,
+      "cgpa": 7.5,
+      "current_registered_credits": 12,
+      "completed_courses": [],
+      "on_probation": false,
+      "registration_hold": false,
+      "department_credit_approval": false,
+      "faculty_waivers": [
+        {
+          "course_code": "CS201",
+          "waived_prerequisite": "CS101",
+          "approved_by": "Dr. Grace Hopper"
+        }
+      ]
+    },
+    {
+      "student_id": "S005",
+      "name": "Eva Green",
+      "year": 2,
+      "cgpa": 6.4,
+      "current_registered_credits": 16,
+      "completed_courses": ["CS101", "CS201"],
+      "on_probation": false,
+      "registration_hold": false,
+      "department_credit_approval": false,
+      "faculty_waivers": []
+    },
+    {
+      "student_id": "S006",
+      "name": "Frank White",
+      "year": 1,
+      "cgpa": 8.8,
+      "current_registered_credits": 14,
+      "completed_courses": ["CS101", "CS201"],
+      "on_probation": false,
+      "registration_hold": false,
+      "department_credit_approval": false,
+      "faculty_waivers": []
+    },
+    {
+      "student_id": "S007",
+      "name": "Grace Lee",
+      "year": 3,
+      "cgpa": 7.8,
+      "current_registered_credits": 22,
+      "completed_courses": ["CS101", "CS201", "CS301"],
+      "on_probation": false,
+      "registration_hold": false,
+      "department_credit_approval": false,
+      "faculty_waivers": []
+    },
+    {
+      "student_id": "S008",
+      "name": "Hannah Brown",
+      "year": 4,
+      "cgpa": 8.9,
+      "current_registered_credits": 22,
+      "completed_courses": ["CS101", "CS201", "CS301"],
+      "on_probation": false,
+      "registration_hold": false,
+      "department_credit_approval": true,
+      "faculty_waivers": []
+    },
+    {
+      "student_id": "S009",
+      "name": "Ian Clark",
+      "year": 4,
+      "cgpa": 9.4,
+      "current_registered_credits": 26,
+      "completed_courses": ["CS101", "CS201", "CS301"],
+      "on_probation": false,
+      "registration_hold": false,
+      "department_credit_approval": true,
+      "faculty_waivers": []
+    },
+    {
+      "student_id": "S010",
+      "name": "Julia Roberts",
+      "year": 3,
+      "cgpa": 7.9,
+      "current_registered_credits": 12,
+      "completed_courses": ["CS101", "CS201", "CS301"],
+      "on_probation": true,
+      "registration_hold": false,
+      "department_credit_approval": false,
+      "faculty_waivers": []
+    },
+    {
+      "student_id": "S011",
+      "name": "Kevin Patel",
+      "year": 3,
+      "cgpa": 8.2,
+      "current_registered_credits": 14,
+      "completed_courses": ["CS101", "CS201", "CS301"],
+      "on_probation": false,
+      "registration_hold": true,
+      "department_credit_approval": false,
+      "faculty_waivers": []
+    },
+    {
+      "student_id": "S012",
+      "name": "Laura Scott",
+      "year": 2,
+      "cgpa": 7.5,
+      "current_registered_credits": 12,
+      "completed_courses": ["CS101"],
+      "on_probation": false,
+      "registration_hold": false,
+      "department_credit_approval": false,
+      "faculty_waivers": []
+    },
+    {
+      "student_id": "S013",
+      "name": "Marcus Vance",
+      "year": 2,
+      "cgpa": null,
+      "current_registered_credits": 14,
+      "completed_courses": ["CS101", "CS201"],
+      "on_probation": false,
+      "registration_hold": false,
+      "department_credit_approval": false,
+      "faculty_waivers": []
+    },
+    {
+      "student_id": "S014",
+      "name": "Nina Simone",
+      "year": 3,
+      "cgpa": 7.9,
+      "current_registered_credits": 12,
+      "completed_courses": ["CS101", "CS201"],
+      "on_probation": false,
+      "registration_hold": false,
+      "department_credit_approval": false,
+      "faculty_waivers": null
+    },
+    {
+      "student_id": "S015",
+      "name": "Oscar Wilde",
+      "year": null,
+      "cgpa": 8.0,
+      "current_registered_credits": 12,
+      "completed_courses": ["CS101", "CS201", "CS301"],
+      "on_probation": false,
+      "registration_hold": false,
+      "department_credit_approval": false,
+      "faculty_waivers": []
+    }
+  ]
+}
+

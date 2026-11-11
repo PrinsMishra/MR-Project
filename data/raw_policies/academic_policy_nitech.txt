@@ -1,0 +1,73 @@
+================================================================================
+NORTHBRIDGE INSTITUTE OF TECHNOLOGY (NITech)
+OFFICIAL ACADEMIC POLICY AND COURSE REGISTRATION REGULATIONS
+Academic Year 2026-2027 | Office of the Academic Registrar
+Document Reference: NIT-ACAD-REG-2026-V1
+================================================================================
+
+SECTION 1: COURSE CATALOG AND PREREQUISITE STRUCTURE
+
+1.1 Course Definitions and Credit Values
+The Department of Computer Science offers the following core and elective courses:
+- CS101: Python Programming (4 credits)
+- CS201: Data Structures (4 credits)
+- CS301: Machine Learning (4 credits)
+- CS401: Deep Learning (4 credits)
+- CS402: Natural Language Processing (3 credits)
+
+1.2 Course Prerequisites
+[Passage P001] Rule R001: CS101 (Python Programming) is an introductory foundation course and has no formal prerequisites. Any enrolled student in good standing may register.
+[Passage P002] Rule R002: CS201 (Data Structures) requires prior successful completion of CS101 (Python Programming) as a mandatory prerequisite.
+[Passage P003] Rule R003: CS301 (Machine Learning) requires prior successful completion of both CS101 (Python Programming) and CS201 (Data Structures) as mandatory prerequisites.
+[Passage P004] Rule R004: CS401 (Deep Learning) requires prior successful completion of CS301 (Machine Learning) as a mandatory prerequisite.
+[Passage P005] Rule R005: CS402 (Natural Language Processing) requires prior successful completion of CS301 (Machine Learning) as a mandatory prerequisite.
+
+1.3 Prerequisite Waiver Policy
+[Passage P006] Rule R006: A prerequisite requirement for any course can only be waived with explicit, documented approval from the course faculty instructor. Without explicit faculty approval, prerequisite requirements are strictly mandatory.
+
+--------------------------------------------------------------------------------
+SECTION 2: CGPA AND ACADEMIC STANDING REQUIREMENTS
+
+2.1 Minimum CGPA for Course Registration
+[Passage P007] Rule R007: Students must maintain a cumulative grade point average (CGPA) of at least 6.0 on a 10.0 scale to be eligible to register for CS201 (Data Structures).
+[Passage P008] Rule R008: Students must maintain a cumulative grade point average (CGPA) of at least 7.0 on a 10.0 scale to be eligible to register for CS301 (Machine Learning).
+[Passage P009] Rule R009: Students must maintain a cumulative grade point average (CGPA) of at least 7.5 on a 10.0 scale to be eligible to register for CS401 (Deep Learning).
+[Passage P010] Rule R010: Students must maintain a cumulative grade point average (CGPA) of at least 7.0 on a 10.0 scale to be eligible to register for CS402 (Natural Language Processing).
+
+2.2 Academic Probation Restrictions
+[Passage P011] Rule R011: Students currently placed on academic probation are strictly prohibited from registering for advanced 400-level elective courses, specifically CS401 and CS402.
+
+--------------------------------------------------------------------------------
+SECTION 3: SEMESTER CREDIT LIMITS AND OVERLOAD EXCEPTIONS
+
+3.1 Standard Credit Allowances
+[Passage P012] Rule R012: The standard semester credit limit for all undergraduate students is 24 credits. No student may exceed 24 credits under normal registration procedures.
+[Passage P013] Rule R013: Final-year (Year 4) students who possess a CGPA of at least 8.0 and obtain explicit Department Chair approval may register for an overload of up to 28 credits in a semester.
+[Passage P014] Rule R014: Under no circumstances may any student register for more than 28 credits in a single semester. The 28-credit ceiling is an absolute institutional limit with no exceptions.
+[Passage P015] Rule R015: In calculating whether a student complies with the semester credit limit, the total credit count includes all previously confirmed registered credits in the current semester plus the credit weight of the newly requested course.
+
+--------------------------------------------------------------------------------
+SECTION 4: ACADEMIC YEAR STANDING AND COURSE OFFERINGS
+
+4.1 Year-Level Standing Requirements
+[Passage P016] Rule R016: CS301 (Machine Learning) is restricted to students who have achieved at least second-year academic standing (Year 2, 3, or 4). First-year students are ineligible.
+[Passage P017] Rule R017: CS401 (Deep Learning) is restricted to students who have achieved at least third-year academic standing (Year 3 or 4).
+[Passage P018] Rule R018: CS402 (Natural Language Processing) is restricted to students who have achieved at least third-year academic standing (Year 3 or 4).
+
+4.2 Registration and Scheduling Constraints
+[Passage P019] Rule R019: A student cannot register for a course that they have already completed and passed in a previous academic term (repeat course restrictions apply).
+[Passage P020] Rule R020: A course must be actively scheduled and offered in the current semester timetable for registration to proceed. Registration in unoffered courses is void.
+
+--------------------------------------------------------------------------------
+SECTION 5: EXCEPTIONS, WAIVERS, AND ADMINISTRATIVE CONSTRAINTS
+
+5.1 Scope and Limitations of Approvals
+[Passage P021] Rule R021: A faculty prerequisite waiver is strictly course-specific and applies solely to the explicitly approved course and specified prerequisite. A waiver for one course does not confer eligibility for any other course.
+[Passage P022] Rule R022: Department approval granted for an overload of additional credits (under Rule R013) pertains solely to the semester credit maximum and does not waive, relax, or substitute for course prerequisites or minimum CGPA thresholds.
+
+5.2 Institutional Administrative Holds and Eligibility Invariants
+[Passage P023] Rule R023: Any student with an outstanding administrative, financial, or disciplinary registration hold is strictly blocked from registering for any course, regardless of academic standing.
+[Passage P024] Rule R024: The placement or removal of academic probation does not automatically release or modify an active administrative registration hold; registration holds must be cleared independently.
+[Passage P025] Rule R025: A course registration request is eligible if and only if every applicable institutional rule, prerequisite, GPA threshold, credit limit, and administrative clearance is satisfied concurrently without contradiction.
+================================================================================
+

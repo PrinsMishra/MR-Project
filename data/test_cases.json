@@ -1,0 +1,169 @@
+{
+  "test_cases": [
+    {
+      "test_id": "TC01",
+      "name": "Standard Eligible Registration for CS301",
+      "description": "Student meets all prerequisites (CS101, CS201), CGPA 8.5 >= 7.0, Year 2 >= 2, and credit load within 24.",
+      "student_id": "S001",
+      "target_course": "CS301",
+      "expected_decision": "ELIGIBLE",
+      "expected_failing_rules": [],
+      "expected_missing_facts": [],
+      "notes": "Baseline positive test case."
+    },
+    {
+      "test_id": "TC02",
+      "name": "Missing Prerequisite CS201 for CS301",
+      "description": "Student completed CS101 but has not completed CS201 and has no waiver.",
+      "student_id": "S002",
+      "target_course": "CS301",
+      "expected_decision": "INELIGIBLE",
+      "expected_failing_rules": ["R003"],
+      "expected_missing_facts": [],
+      "notes": "Direct prerequisite violation."
+    },
+    {
+      "test_id": "TC03",
+      "name": "Valid Course-Specific Faculty Prerequisite Waiver",
+      "description": "Student lacks CS201 but has an explicit faculty waiver specifically for CS301/CS201.",
+      "student_id": "S003",
+      "target_course": "CS301",
+      "expected_decision": "ELIGIBLE",
+      "expected_failing_rules": [],
+      "expected_missing_facts": [],
+      "notes": "Testing prerequisite waiver exception (R006, R021)."
+    },
+    {
+      "test_id": "TC04",
+      "name": "Waiver Leakage Prevention Across Courses",
+      "description": "Student has a faculty waiver for CS201/CS101, but is applying for CS301 where CS101 and CS201 are both required.",
+      "student_id": "S004",
+      "target_course": "CS301",
+      "expected_decision": "INELIGIBLE",
+      "expected_failing_rules": ["R003"],
+      "expected_missing_facts": [],
+      "notes": "Verifies Rule R021: waiver applies strictly to the specified course."
+    },
+    {
+      "test_id": "TC05",
+      "name": "CGPA Threshold Deficiency",
+      "description": "Student completed all prerequisites and is Year 2, but CGPA is 6.4 which is below the 7.0 threshold for CS301.",
+      "student_id": "S005",
+      "target_course": "CS301",
+      "expected_decision": "INELIGIBLE",
+      "expected_failing_rules": ["R008"],
+      "expected_missing_facts": [],
+      "notes": "Verifies Rule R008."
+    },
+    {
+      "test_id": "TC06",
+      "name": "Academic Year Standing Deficiency",
+      "description": "First-year student with high CGPA and prerequisites completed attempting to take Year 2 course CS301.",
+      "student_id": "S006",
+      "target_course": "CS301",
+      "expected_decision": "INELIGIBLE",
+      "expected_failing_rules": ["R016"],
+      "expected_missing_facts": [],
+      "notes": "Verifies Rule R016."
+    },
+    {
+      "test_id": "TC07",
+      "name": "Standard Credit Limit Exceeded Without Approval",
+      "description": "Student attempting 22 + 4 = 26 credits exceeding standard 24 limit without department approval.",
+      "student_id": "S007",
+      "target_course": "CS401",
+      "expected_decision": "INELIGIBLE",
+      "expected_failing_rules": ["R012"],
+      "expected_missing_facts": [],
+      "notes": "Verifies Rule R012."
+    },
+    {
+      "test_id": "TC08",
+      "name": "Valid Credit Overload Exception",
+      "description": "Final-year student with CGPA 8.9 and department approval taking 22 + 4 = 26 credits (<= 28).",
+      "student_id": "S008",
+      "target_course": "CS401",
+      "expected_decision": "ELIGIBLE",
+      "expected_failing_rules": [],
+      "expected_missing_facts": [],
+      "notes": "Verifies Rule R013 exception handling."
+    },
+    {
+      "test_id": "TC09",
+      "name": "Absolute Credit Ceiling Exceeded",
+      "description": "Final-year student with department approval attempting 26 + 4 = 30 credits exceeding absolute cap of 28.",
+      "student_id": "S009",
+      "target_course": "CS401",
+      "expected_decision": "INELIGIBLE",
+      "expected_failing_rules": ["R014"],
+      "expected_missing_facts": [],
+      "notes": "Verifies Rule R014 absolute ceiling."
+    },
+    {
+      "test_id": "TC10",
+      "name": "Academic Probation Barring 400-level Registration",
+      "description": "Student on academic probation attempting to register for advanced elective CS401.",
+      "student_id": "S010",
+      "target_course": "CS401",
+      "expected_decision": "INELIGIBLE",
+      "expected_failing_rules": ["R011"],
+      "expected_missing_facts": [],
+      "notes": "Verifies Rule R011."
+    },
+    {
+      "test_id": "TC11",
+      "name": "Administrative Registration Hold Block",
+      "description": "Student with an active administrative hold attempting course registration.",
+      "student_id": "S011",
+      "target_course": "CS301",
+      "expected_decision": "INELIGIBLE",
+      "expected_failing_rules": ["R023"],
+      "expected_missing_facts": [],
+      "notes": "Verifies Rule R023."
+    },
+    {
+      "test_id": "TC12",
+      "name": "Prohibited Course Repetition",
+      "description": "Student attempting to register for CS101, which they have already completed.",
+      "student_id": "S012",
+      "target_course": "CS101",
+      "expected_decision": "INELIGIBLE",
+      "expected_failing_rules": ["R019"],
+      "expected_missing_facts": [],
+      "notes": "Verifies Rule R019."
+    },
+    {
+      "test_id": "TC13",
+      "name": "Missing Fact: Unknown CGPA",
+      "description": "Student meets all prerequisites but CGPA is unknown. Could be eligible (if >= 7.0) or ineligible (if < 7.0).",
+      "student_id": "S013",
+      "target_course": "CS301",
+      "expected_decision": "UNDETERMINED",
+      "expected_failing_rules": [],
+      "expected_missing_facts": ["cgpa"],
+      "notes": "Verifies 3-way reasoning on incomplete information."
+    },
+    {
+      "test_id": "TC14",
+      "name": "Missing Fact: Unknown Faculty Waiver",
+      "description": "Student lacks CS301 prerequisite CS201 and faculty waiver status is unknown.",
+      "student_id": "S014",
+      "target_course": "CS401",
+      "expected_decision": "UNDETERMINED",
+      "expected_failing_rules": [],
+      "expected_missing_facts": ["faculty_waivers"],
+      "notes": "Verifies 3-way reasoning on missing approval status."
+    },
+    {
+      "test_id": "TC15",
+      "name": "Missing Fact: Unknown Academic Year",
+      "description": "Student year standing is unknown for 400-level course CS401.",
+      "student_id": "S015",
+      "target_course": "CS401",
+      "expected_decision": "UNDETERMINED",
+      "expected_failing_rules": [],
+      "expected_missing_facts": ["year"],
+      "notes": "Verifies year standing uncertainty."
+    }
+  ]
+}

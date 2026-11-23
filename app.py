@@ -14,7 +14,7 @@ from reasoning.counterexample import CounterexampleGenerator
 
 # Page settings
 st.set_page_config(
-    page_title="Academic Policy Advisor | NITech",
+    page_title="Counterexample-Guided Academic Policy Reasoning with LLMs and Z3",
     page_icon="🎓",
     layout="centered",
     initial_sidebar_state="collapsed",
@@ -77,8 +77,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="main-title">🎓 NITech Academic Policy Advisor</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">Ask registration questions and get verified, rule-grounded answers powered by Z3 Formal Reasoning.</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">🎓 Counterexample-Guided Academic Policy Reasoning with LLMs and Z3</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-title">Formal Verification of Academic Eligibility via LLMs, RAG, and the Z3 SMT Solver</div>', unsafe_allow_html=True)
 
 # Main Navigation Tabs
 tab_advisor, tab_handbook, tab_counterexamples = st.tabs([

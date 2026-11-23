@@ -47,7 +47,7 @@ def main():
             target_course = "CS301"
 
     print("=" * 75)
-    print("  COUNTEREXAMPLE-GUIDED ACADEMIC POLICY REASONING (RAG + Z3)")
+    print("  COUNTEREXAMPLE-GUIDED ACADEMIC POLICY REASONING WITH LLMS AND Z3")
     print("=" * 75)
     print(f"Student Question: \"{args.question}\"")
     print(f"Target Course:    {target_course}")

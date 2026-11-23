@@ -1,4 +1,4 @@
-# Counterexample-Guided Academic Policy Reasoning with LLMs, RAG, and Z3
+# Counterexample-Guided Academic Policy Reasoning with LLMs and Z3
 
 A machine reasoning system that formalizes university academic policy regulations, verifies student registration eligibility using the **Z3 SMT Solver**, detects policy contradictions via **UNSAT Cores**, generates **counterexamples**, and grounds explanations in verifiable source passages.
 

@@ -29,7 +29,7 @@ def main():
 
     student = students_map[student_id]
     print("=" * 70)
-    print(f"  NITech Academic Policy Reasoning Engine (Phase 1 & 2 Prototype)")
+    print(f"  Counterexample-Guided Academic Policy Reasoning with LLMs and Z3")
     print("=" * 70)
     print(f"Student: {student.name} ({student.student_id})")
     print(f"Year: {student.year} | CGPA: {student.cgpa} | Current Credits: {student.current_registered_credits}")

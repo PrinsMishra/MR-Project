@@ -368,8 +368,35 @@ elif screen == "3. Student Eligibility Checker":
                 )
                 st.session_state.last_verification = bundle
                 st.session_state.last_profile = profile
-                st.success("Verification complete! Redirecting to Results screen...")
-                st.info("Navigate to **Screen 4: Formal Reasoning & Counterexamples** to view the full proof.")
+
+    if "last_verification" in st.session_state:
+        b = st.session_state.last_verification
+        st.markdown("---")
+        st.subheader("🎯 Instant Verification Result")
+
+        if b.decision == DecisionEnum.ELIGIBLE:
+            st.success(f"### 🟢 OFFICIAL VERDICT: {b.decision.value}")
+        elif b.decision == DecisionEnum.INELIGIBLE:
+            st.error(f"### 🔴 OFFICIAL VERDICT: {b.decision.value}")
+        elif b.decision == DecisionEnum.UNDETERMINED:
+            st.warning(f"### 🟠 OFFICIAL VERDICT: {b.decision.value}")
+        else:
+            st.error(f"### 🟣 OFFICIAL VERDICT: {b.decision.value}")
+
+        st.info(f"**Explanation:** {b.explanation}")
+
+        if b.decision == DecisionEnum.INELIGIBLE and b.failing_rule_details:
+            st.markdown("##### ❌ Blocking Academic Policies (Z3 UNSAT Core):")
+            for r in b.failing_rule_details:
+                st.write(f"- **[{r['rule_id']}] {r['title']}**: {r['description']} *(Source: `{r['source_doc']}`, Passage `{r['passage_id']}`)*")
+
+        if b.decision == DecisionEnum.UNDETERMINED and b.missing_facts:
+            st.warning(f"**Missing Information Needed:** {', '.join(b.missing_facts)}")
+
+        if b.retrieved_passages:
+            st.markdown("##### 📚 Supporting Policy Citations (Retrieved via RAG):")
+            for p in b.retrieved_passages[:2]:
+                st.caption(f"**[{p.passage_id}] {p.document} §{p.section}**: *\"{p.text}\"*")
 
 
 # ---------------------------------------------------------------------------

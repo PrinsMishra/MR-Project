@@ -126,3 +126,4 @@ def test_conflict_detection_on_contradictory_candidate_rule(conflict_det):
     assert rep.has_conflict is True, "Expected conflict detector to catch contradictory rule"
     assert "R_CANDIDATE_CONFLICT" in rep.conflicting_rule_ids
     assert "R008" in rep.conflicting_rule_ids
+

@@ -21,4 +21,6 @@ Thumbs.db
 
 # Vector store & temporary caches
 chroma_db/
+data/vector_cache/
 *.db-journal
+

@@ -1,482 +1,355 @@
 """
-Streamlit Web Application: Counterexample-Guided Academic Policy Reasoning with LLMs, RAG, and Z3.
-Provides 4 main screens:
-  1. Upload Policies & View Chunks
-  2. Review & Approve Extracted Rules
-  3. Student Eligibility Query Form
-  4. Formal Verification Results & Counterexample Explorer
+Academic Policy Reasoning Assistant - NITech
+A clean, student-centric application that verifies registration eligibility
+using RAG (Retrieval-Augmented Generation) and the Z3 Formal Logic Solver.
 """
 
 import streamlit as st
 import json
 from pathlib import Path
-import pandas as pd
 
-from services.policy_service import PolicyService
 from services.eligibility_service import EligibilityService
-from services.explanation_service import ExplanationService
-from reasoning.rule_schema import StudentProfile, PrerequisiteWaiver, DecisionEnum, AcademicRule, AtomicCondition, RuleType, SourceReference
+from reasoning.rule_schema import StudentProfile, PrerequisiteWaiver, DecisionEnum
 from reasoning.counterexample import CounterexampleGenerator
-from reasoning.conflict_detector import ConflictDetector
 
-# Page configuration
+# Page settings
 st.set_page_config(
-    page_title="Academic Policy Reasoning (Z3 + RAG)",
+    page_title="Academic Policy Advisor | NITech",
     page_icon="🎓",
-    layout="wide",
-    initial_sidebar_state="expanded",
+    layout="centered",
+    initial_sidebar_state="collapsed",
 )
 
 # Initialize services in session state
-if "policy_service" not in st.session_state:
-    st.session_state.policy_service = PolicyService()
 if "eligibility_service" not in st.session_state:
     st.session_state.eligibility_service = EligibilityService()
 if "ce_gen" not in st.session_state:
     st.session_state.ce_gen = CounterexampleGenerator()
-if "conflict_det" not in st.session_state:
-    st.session_state.conflict_det = ConflictDetector()
 
 DATA_DIR = Path(__file__).parent / "data"
 
-# Sidebar Navigation
-st.sidebar.title("🎓 NITech Policy Reasoner")
-st.sidebar.markdown("**Machine Reasoning Engine**\n*Powered by Z3, RAG & LLMs*")
-screen = st.sidebar.radio(
-    "Navigation",
-    [
-        "1. Upload & Ingest Policies",
-        "2. Review Extracted Rules",
-        "3. Student Eligibility Checker",
-        "4. Formal Reasoning & Counterexamples",
-    ],
-)
+# Custom Styling for clean modern card UI
+st.markdown("""
+<style>
+    .main-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #1E3A8A;
+        margin-bottom: 0.2rem;
+    }
+    .sub-title {
+        color: #6B7280;
+        font-size: 1.05rem;
+        margin-bottom: 1.5rem;
+    }
+    .result-card {
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+    .eligible-card {
+        background-color: #ECFDF5;
+        border: 2px solid #10B981;
+        color: #065F46;
+    }
+    .ineligible-card {
+        background-color: #FEF2F2;
+        border: 2px solid #EF4444;
+        color: #991B1B;
+    }
+    .undetermined-card {
+        background-color: #FFFBEB;
+        border: 2px solid #F59E0B;
+        color: #92400E;
+    }
+    .badge {
+        display: inline-block;
+        padding: 0.35rem 0.8rem;
+        border-radius: 9999px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin-bottom: 0.8rem;
+    }
+    .badge-eligible { background-color: #10B981; color: white; }
+    .badge-ineligible { background-color: #EF4444; color: white; }
+    .badge-undetermined { background-color: #F59E0B; color: white; }
+</style>
+""", unsafe_allow_html=True)
 
-st.sidebar.markdown("---")
-st.sidebar.info(
-    "**Key Architecture Principle:**\n"
-    "The LLM interprets policy language, but **Z3 mathematically verifies** every registration decision. "
-    "Zero hallucinations."
-)
+st.markdown('<div class="main-title">🎓 NITech Academic Policy Advisor</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-title">Ask registration questions and get verified, rule-grounded answers powered by Z3 Formal Reasoning.</div>', unsafe_allow_html=True)
 
-# ---------------------------------------------------------------------------
-# SCREEN 1: UPLOAD & INGEST POLICIES
-# ---------------------------------------------------------------------------
-if screen == "1. Upload & Ingest Policies":
-    st.header("📄 Screen 1: Academic Policy Ingestion & Chunking")
-    st.markdown(
-        "Upload university policy PDFs or inspect the baseline **NITech Academic Regulations Manual (2026-2027)**. "
-        "The document is divided into source-tracked, overlapping passages tagged with sections and course identifiers."
-    )
-
-    col1, col2 = st.columns([1, 1])
-
-    with col1:
-        st.subheader("Upload Policy Document")
-        uploaded_file = st.file_uploader("Upload Policy PDF", type=["pdf", "txt"])
-
-        if uploaded_file is not None:
-            if st.button("Process & Index Uploaded Document", type="primary"):
-                with st.spinner("Extracting pages, chunking passages, and computing embeddings..."):
-                    bytes_data = uploaded_file.read()
-                    passages = st.session_state.policy_service.process_uploaded_pdf(
-                        bytes_data, uploaded_file.name
-                    )
-                    st.success(f"Successfully processed {len(passages)} passages from `{uploaded_file.name}`!")
-                    st.session_state.current_passages = passages
-        else:
-            if st.button("Load Default NITech Regulations PDF"):
-                pdf_path = DATA_DIR / "raw_policies" / "academic_policy_nitech.pdf"
-                if pdf_path.exists():
-                    with open(pdf_path, "rb") as f:
-                        passages = st.session_state.policy_service.process_uploaded_pdf(
-                            f.read(), "academic_policy_nitech.pdf"
-                        )
-                    st.session_state.current_passages = passages
-                    st.success(f"Loaded and indexed 25 default passages from `{pdf_path.name}`!")
-
-    with col2:
-        st.subheader("Ingestion Architecture")
-        st.markdown(
-            """
-            * **PDF Parsing:** PyMuPDF (`fitz`) extracts layout, page indices, and text.
-            * **Passage Chunker:** Preserves rule boundaries (`[Passage P001]` to `P025`).
-            * **Vector Index:** Dense semantic embeddings stored in **Pinecone** & local cache.
-            * **Course Hints:** Automatic regex entity linking (`CS101`, `CS201`, `CS301`, `CS401`, `CS402`).
-            """
-        )
-
-    st.markdown("---")
-    st.subheader("Extracted Passages and Source Metadata")
-
-    passages = getattr(st.session_state, "current_passages", None)
-    if not passages:
-        # Load from vector cache if available
-        cache_file = DATA_DIR / "vector_cache" / "passages_index.json"
-        if cache_file.exists():
-            with open(cache_file, "r", encoding="utf-8") as f:
-                raw_cache = json.load(f)
-            table_data = []
-            for pid, d in raw_cache.items():
-                m = d["metadata"]
-                table_data.append({
-                    "Passage ID": m["passage_id"],
-                    "Section": m["section"],
-                    "Page": m["page_number"],
-                    "Course Hints": ", ".join(m.get("course_hints", [])),
-                    "Rule Hints": ", ".join(m.get("rule_hints", [])),
-                    "Text Excerpt": m["text"][:120] + "...",
-                })
-            df = pd.DataFrame(table_data)
-            st.dataframe(df, use_container_width=True)
-            st.caption(f"Showing {len(df)} indexed passages from policy vector store.")
-    else:
-        table_data = [{
-            "Passage ID": p.passage_id,
-            "Section": p.section,
-            "Page": p.page_number,
-            "Course Hints": ", ".join(p.course_hints),
-            "Rule Hints": ", ".join(p.rule_hints),
-            "Text Excerpt": p.text[:120] + "...",
-        } for p in passages]
-        st.dataframe(pd.DataFrame(table_data), use_container_width=True)
-
+# Main Navigation Tabs
+tab_advisor, tab_handbook, tab_counterexamples = st.tabs([
+    "💬 Check Course Eligibility",
+    "📖 Policy Handbook",
+    "🔬 Counterexample Lab",
+])
 
 # ---------------------------------------------------------------------------
-# SCREEN 2: REVIEW EXTRACTED RULES
+# TAB 1: STUDENT ELIGIBILITY ADVISOR
 # ---------------------------------------------------------------------------
-elif screen == "2. Review Extracted Rules":
-    st.header("🔍 Screen 2: Human-in-the-Loop Rule Review & Approval")
-    st.markdown(
-        "Inspect candidate rules extracted by the LLM alongside the verbatim source passages. "
-        "Reviewers can adjust conditions, edit thresholds, approve rules into the Knowledge Base, or delete invalid drafts."
-    )
-
-    approved_rules = st.session_state.policy_service.get_approved_rules()
-    st.sidebar.metric("Approved Rules in KB", len(approved_rules))
-
-    tab1, tab2 = st.tabs(["Inspect Approved Knowledge Base", "Extract & Review Draft Rule"])
-
-    with tab1:
-        st.subheader("Current Approved Rules in `policies.json`")
-        rule_selection = st.selectbox(
-            "Select Rule to Inspect / Edit",
-            approved_rules,
-            format_func=lambda r: f"[{r.id}] {r.title} ({r.type.value})",
-        )
-
-        if rule_selection:
-            col_l, col_r = st.columns([1, 1])
-            with col_l:
-                st.markdown("#### Original Document Source")
-                st.info(
-                    f"**Document:** `{rule_selection.source.document}`\n\n"
-                    f"**Section:** `{rule_selection.source.section}` | **Passage ID:** `{rule_selection.source.passage_id}`\n\n"
-                    f"*\"{rule_selection.source.text}\"*"
-                )
-
-            with col_r:
-                st.markdown("#### Formal JSON Representation")
-                st.json(rule_selection.model_dump())
-
-            with st.expander("✏️ Edit This Approved Rule"):
-                with st.form(f"edit_form_{rule_selection.id}"):
-                    new_title = st.text_input("Rule Title", value=rule_selection.title)
-                    new_desc = st.text_area("Description", value=rule_selection.description)
-                    new_waiver = st.checkbox("Waiver Allowed", value=rule_selection.waiver_allowed)
-
-                    submitted = st.form_submit_button("Save Changes to KB")
-                    if submitted:
-                        rule_selection.title = new_title
-                        rule_selection.description = new_desc
-                        rule_selection.waiver_allowed = new_waiver
-                        st.session_state.policy_service.approve_or_update_rule(rule_selection)
-                        st.success(f"Rule {rule_selection.id} successfully updated!")
-                        st.rerun()
-
-    with tab2:
-        st.subheader("Test LLM Rule Extraction on Any Passage")
-        st.markdown("Select a passage from the document to trigger candidate extraction:")
-
-        cache_file = DATA_DIR / "vector_cache" / "passages_index.json"
-        if cache_file.exists():
-            with open(cache_file, "r", encoding="utf-8") as f:
-                cached_passages = json.load(f)
-
-            passage_choice = st.selectbox(
-                "Choose Passage",
-                list(cached_passages.keys()),
-                format_func=lambda k: f"[{k}] Section {cached_passages[k]['metadata']['section']} - {cached_passages[k]['metadata']['text'][:60]}...",
-            )
-
-            if st.button("Extract Rule with LLM", type="primary"):
-                p_meta = cached_passages[passage_choice]["metadata"]
-                from ingestion.source_tracker import PolicyPassage
-                p_obj = PolicyPassage(
-                    passage_id=p_meta["passage_id"],
-                    document=p_meta["document"],
-                    page_number=p_meta["page_number"],
-                    section=p_meta["section"],
-                    text=p_meta["text"],
-                    course_hints=p_meta.get("course_hints", []),
-                    rule_hints=p_meta.get("rule_hints", []),
-                )
-
-                with st.spinner("Invoking LLM to extract structured Pydantic rule..."):
-                    extracted_rule = st.session_state.policy_service.extract_draft_rule(p_obj)
-                    if extracted_rule:
-                        st.session_state.extracted_candidate = extracted_rule
-                        st.success(f"Extracted candidate rule `{extracted_rule.id}`!")
-                    else:
-                        st.error("Failed to extract structured rule from passage.")
-
-            if "extracted_candidate" in st.session_state:
-                cand = st.session_state.extracted_candidate
-                st.markdown("#### Candidate Draft Rule:")
-                st.json(cand.model_dump())
-
-                col_app, col_rej = st.columns([1, 1])
-                with col_app:
-                    if st.button("✅ Approve into Knowledge Base"):
-                        st.session_state.policy_service.approve_or_update_rule(cand)
-                        st.success(f"Rule `{cand.id}` approved and saved to policies.json!")
-                with col_rej:
-                    if st.button("❌ Reject Draft"):
-                        del st.session_state.extracted_candidate
-                        st.info("Draft rejected.")
-                        st.rerun()
-
-
-# ---------------------------------------------------------------------------
-# SCREEN 3: STUDENT ELIGIBILITY CHECKER
-# ---------------------------------------------------------------------------
-elif screen == "3. Student Eligibility Checker":
-    st.header("📝 Screen 3: Student Eligibility Query")
-    st.markdown(
-        "Enter student attributes, current registered credit counts, completed courses, and approvals. "
-        "The system will query relevant policies with **RAG** and formally verify registration with **Z3**."
-    )
-
-    # Option to preload preset benchmark students
+with tab_advisor:
+    # Load Preset Students
     with open(DATA_DIR / "students.json", "r", encoding="utf-8") as f:
         preset_students = json.load(f)["students"]
     preset_dict = {s["student_id"]: s for s in preset_students}
 
-    col_load, col_target = st.columns([1, 1])
-    with col_load:
-        selected_preset = st.selectbox(
-            "Quick Load Benchmark Student Profile",
-            ["-- Create Custom Student --"] + [f"{s['student_id']}: {s['name']} (Year {s['year']})" for s in preset_students],
+    # Friendly descriptions for students
+    student_labels = {
+        "S001": "Alice Johnson (Year 2, CGPA 8.5 — Eligible for CS301)",
+        "S002": "Bob Smith (Year 2, CGPA 8.0 — Missing CS201 prerequisite)",
+        "S003": "Charlie Davis (Year 2 — Missing CS201, but HAS Faculty Waiver)",
+        "S004": "David Miller (Year 2 — Waiver for CS201, but applying for CS301)",
+        "S005": "Eva Green (Year 2 — CGPA 6.4 < 7.0 required for CS301)",
+        "S006": "Frank White (Year 1 — Standing year restricted for CS301)",
+        "S007": "Grace Lee (Year 3 — 26 credits exceeds 24 without approval)",
+        "S008": "Hannah Brown (Year 4, CGPA 8.9 — Approved 26-credit overload)",
+        "S009": "Ian Clark (Year 4 — 30 credits exceeds absolute 28 cap)",
+        "S010": "Julia Roberts (Year 3 — Academic probation blocks CS401)",
+        "S011": "Kevin Patel (Year 3 — Registration hold blocks enrollment)",
+        "S012": "Laura Scott (Year 2 — Cannot repeat completed CS101)",
+        "S013": "Marcus Vance (Year 2 — Missing CGPA record)",
+    }
+
+    st.subheader("1. Select or Enter Student Information")
+    col_preset, col_course = st.columns([1.4, 1])
+
+    with col_preset:
+        preset_choice = st.selectbox(
+            "Choose a Student Scenario",
+            ["-- Choose from preset students --"] + [f"{sid}: {student_labels.get(sid, s['name'])}" for sid, s in preset_dict.items() if sid in student_labels],
         )
 
-    preset_data = {}
-    if selected_preset != "-- Create Custom Student --":
-        pid = selected_preset.split(":")[0].strip()
-        preset_data = preset_dict[pid]
-
-    with col_target:
+    with col_course:
         target_course = st.selectbox(
-            "Target Registration Course",
-            ["CS301", "CS101", "CS201", "CS401", "CS402"],
+            "Target Course to Register",
+            [
+                "CS301 - Machine Learning (4 credits)",
+                "CS401 - Deep Learning (4 credits)",
+                "CS201 - Data Structures (4 credits)",
+                "CS402 - Natural Language Processing (3 credits)",
+                "CS101 - Python Programming (4 credits)",
+            ],
             index=0,
-            help="CS301: Machine Learning, CS401: Deep Learning, CS201: Data Structures",
         )
+        course_code = target_course.split(" - ")[0].strip()
 
-    st.markdown("---")
-    st.subheader("Student Academic Profile")
+    # Preload facts
+    preset_data = {}
+    if preset_choice != "-- Choose from preset students --":
+        pid = preset_choice.split(":")[0].strip()
+        preset_data = preset_dict.get(pid, {})
 
-    with st.form("student_query_form"):
-        col1, col2, col3 = st.columns(3)
-
+    with st.expander("👤 View / Edit Student Details", expanded=(preset_choice == "-- Choose from preset students --")):
+        col1, col2 = st.columns(2)
         with col1:
-            st_id = st.text_input("Student ID", value=preset_data.get("student_id", "S_CUSTOM"))
-            st_name = st.text_input("Student Name", value=preset_data.get("name", "Custom Student"))
+            st_name = st.text_input("Student Name", value=preset_data.get("name", "Student"))
             year_val = preset_data.get("year", 2)
             year = st.selectbox(
-                "Academic Year Standing",
-                [1, 2, 3, 4, "Unknown (None)"],
+                "Academic Year",
+                [1, 2, 3, 4, "Unknown"],
                 index=([1, 2, 3, 4, None].index(year_val) if year_val in [1, 2, 3, 4] else 1),
             )
-
-        with col2:
             cgpa_val = preset_data.get("cgpa", 8.0)
-            cgpa_unknown = st.checkbox("CGPA is Unknown", value=(cgpa_val is None))
+            cgpa_unknown = st.checkbox("CGPA is unknown / not recorded", value=(cgpa_val is None))
             cgpa = None if cgpa_unknown else st.number_input(
                 "CGPA (out of 10.0)", min_value=0.0, max_value=10.0, value=float(cgpa_val or 7.5), step=0.1
             )
 
+        with col2:
             current_credits = st.number_input(
-                "Current Registered Credits",
-                min_value=0,
-                max_value=32,
-                value=int(preset_data.get("current_registered_credits", 16)),
-                step=1,
+                "Currently Registered Credits",
+                min_value=0, max_value=32, value=int(preset_data.get("current_registered_credits", 16))
             )
-
-        with col3:
-            completed_default = preset_data.get("completed_courses", ["CS101"])
+            default_completed = preset_data.get("completed_courses", ["CS101"])
             completed_courses = st.multiselect(
-                "Completed Courses",
+                "Completed Passed Courses",
                 ["CS101", "CS201", "CS301", "CS401", "CS402"],
-                default=completed_default if completed_default is not None else [],
+                default=default_completed if default_completed is not None else [],
             )
 
-            on_probation = st.checkbox("On Academic Probation", value=bool(preset_data.get("on_probation", False)))
-            registration_hold = st.checkbox("Active Administrative Registration Hold", value=bool(preset_data.get("registration_hold", False)))
-            dept_approval = st.checkbox("Department Credit Overload Approval", value=bool(preset_data.get("department_credit_approval", False)))
+        # Status Checkboxes
+        st.markdown("**Academic Status & Approvals:**")
+        col_c1, col_c2, col_c3 = st.columns(3)
+        with col_c1:
+            on_probation = st.checkbox("Academic Probation", value=bool(preset_data.get("on_probation", False)))
+        with col_c2:
+            registration_hold = st.checkbox("Registration Hold", value=bool(preset_data.get("registration_hold", False)))
+        with col_c3:
+            dept_approval = st.checkbox("Dept Overload Approval (>24 cr)", value=bool(preset_data.get("department_credit_approval", False)))
 
-        # Faculty waivers
-        st.markdown("#### Faculty Prerequisite Waivers")
-        has_waiver = st.checkbox("Student has a course-specific faculty waiver", value=bool(preset_data.get("faculty_waivers")))
+        # Prerequisite Waiver
+        has_waiver = st.checkbox("Has a Faculty Prerequisite Waiver", value=bool(preset_data.get("faculty_waivers")))
         waivers = []
         if has_waiver:
-            w_col1, w_col2, w_col3 = st.columns(3)
+            w_col1, w_col2 = st.columns(2)
             with w_col1:
-                w_course = st.selectbox("Waiver for Target Course", ["CS301", "CS201", "CS401", "CS402"])
+                w_course = st.selectbox("Waiver for Course", ["CS301", "CS201", "CS401", "CS402"])
             with w_col2:
-                w_prereq = st.selectbox("Waived Prerequisite", ["CS101", "CS201", "CS301"])
-            with w_col3:
-                w_prof = st.text_input("Approved By", value="Dr. Alan Turing")
-            waivers.append(PrerequisiteWaiver(
-                course_code=w_course, waived_prerequisite=w_prereq, approved_by=w_prof
-            ))
+                w_prereq = st.selectbox("Waived Prerequisite", ["CS201", "CS101", "CS301"])
+            waivers.append(PrerequisiteWaiver(course_code=w_course, waived_prerequisite=w_prereq, approved_by="Faculty Instructor"))
 
-        user_query = st.text_input(
-            "Natural Language Inquiry",
-            value=f"Am I eligible to register for {target_course}?",
+    st.subheader("2. Ask Your Question")
+    user_query = st.text_input(
+        "Question",
+        value=f"Am I eligible to register for {course_code}?",
+        help="You can ask in natural language. The system retrieves the exact policy rules and mathematically checks your facts.",
+    )
+
+    if st.button("Check Registration Eligibility", type="primary", use_container_width=True):
+        student_obj = StudentProfile(
+            student_id=preset_data.get("student_id", "S_STUDENT"),
+            name=st_name,
+            year=None if year == "Unknown" else int(year),
+            cgpa=cgpa,
+            current_registered_credits=current_credits,
+            completed_courses=completed_courses,
+            on_probation=on_probation,
+            registration_hold=registration_hold,
+            department_credit_approval=dept_approval,
+            faculty_waivers=waivers,
         )
 
-        verify_btn = st.form_submit_button("🔍 Run Formal Z3 Verification", type="primary")
-
-        if verify_btn:
-            profile = StudentProfile(
-                student_id=st_id,
-                name=st_name,
-                year=None if year == "Unknown (None)" else int(year),
-                cgpa=cgpa,
-                current_registered_credits=current_credits,
-                completed_courses=completed_courses,
-                on_probation=on_probation,
-                registration_hold=registration_hold,
-                department_credit_approval=dept_approval,
-                faculty_waivers=waivers,
+        with st.spinner("Checking official academic regulations and verifying with Z3 formal solver..."):
+            bundle = st.session_state.eligibility_service.verify_registration(
+                student_obj, course_code, user_query=user_query
             )
+            st.session_state.current_result = bundle
 
-            with st.spinner("Retrieving policy passages and executing Z3 solver..."):
-                bundle = st.session_state.eligibility_service.verify_registration(
-                    profile, target_course, user_query=user_query
-                )
-                st.session_state.last_verification = bundle
-                st.session_state.last_profile = profile
+    # Display Clean Result
+    if "current_result" in st.session_state:
+        b = st.session_state.current_result
 
-    if "last_verification" in st.session_state:
-        b = st.session_state.last_verification
         st.markdown("---")
-        st.subheader("🎯 Instant Verification Result")
+        st.subheader("Decision & Explanation")
 
         if b.decision == DecisionEnum.ELIGIBLE:
-            st.success(f"### 🟢 OFFICIAL VERDICT: {b.decision.value}")
+            st.markdown(
+                f"""
+                <div class="result-card eligible-card">
+                    <span class="badge badge-eligible">ELIGIBLE TO REGISTER</span>
+                    <h3>Yes, you are eligible to register for {b.target_course}!</h3>
+                    <p style="font-size: 1.05rem; margin-top: 0.5rem;">
+                        All required prerequisites, minimum CGPA thresholds, semester credit limits, and academic standing requirements are fully satisfied.
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
         elif b.decision == DecisionEnum.INELIGIBLE:
-            st.error(f"### 🔴 OFFICIAL VERDICT: {b.decision.value}")
-        elif b.decision == DecisionEnum.UNDETERMINED:
-            st.warning(f"### 🟠 OFFICIAL VERDICT: {b.decision.value}")
-        else:
-            st.error(f"### 🟣 OFFICIAL VERDICT: {b.decision.value}")
+            st.markdown(
+                f"""
+                <div class="result-card ineligible-card">
+                    <span class="badge badge-ineligible">NOT ELIGIBLE (REGISTRATION BLOCKED)</span>
+                    <h3>You cannot register for {b.target_course} at this time.</h3>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
-        st.info(f"**Explanation:** {b.explanation}")
-
-        if b.decision == DecisionEnum.INELIGIBLE and b.failing_rule_details:
-            st.markdown("##### ❌ Blocking Academic Policies (Z3 UNSAT Core):")
+            st.error("#### ❌ What is preventing your registration:")
             for r in b.failing_rule_details:
-                st.write(f"- **[{r['rule_id']}] {r['title']}**: {r['description']} *(Source: `{r['source_doc']}`, Passage `{r['passage_id']}`)*")
+                st.markdown(f"**Policy Rule `{r['rule_id']}` ({r['title']})**")
+                st.markdown(f"> *{r['description']}*")
+                st.caption(f"Official Citation: Section {r['source_section']}, Passage {r['passage_id']} in `{r['source_doc']}`")
 
-        if b.decision == DecisionEnum.UNDETERMINED and b.missing_facts:
-            st.warning(f"**Missing Information Needed:** {', '.join(b.missing_facts)}")
+        elif b.decision == DecisionEnum.UNDETERMINED:
+            st.markdown(
+                f"""
+                <div class="result-card undetermined-card">
+                    <span class="badge badge-undetermined">MORE INFORMATION NEEDED</span>
+                    <h3>Eligibility is currently undecided.</h3>
+                    <p style="font-size: 1.05rem;">
+                        Your registration could be either approved or denied depending on missing student information:
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            for f in b.missing_facts:
+                st.warning(f"⚠️ **Missing Field:** Please provide your **`{f}`** to determine eligibility.")
 
+        # Supporting Policy Citations (Clean, plain English)
         if b.retrieved_passages:
-            st.markdown("##### 📚 Supporting Policy Citations (Retrieved via RAG):")
-            for p in b.retrieved_passages[:2]:
-                st.caption(f"**[{p.passage_id}] {p.document} §{p.section}**: *\"{p.text}\"*")
+            with st.expander("📖 View Supporting University Policy Rules", expanded=True):
+                for p in b.retrieved_passages[:2]:
+                    st.markdown(f"**Rule Passage [{p.passage_id}] (Section {p.section}):**")
+                    st.info(f"*\"{p.text}\"*")
+
+        # Collapsible technical proof for professor / grading review
+        with st.expander("🛠️ Advanced: View Formal Z3 Proof Details (For Graders/Technical Review)"):
+            st.write(f"**Solver Verdict:** `{b.decision.value}`")
+            st.write(f"**Failing Rule IDs (UNSAT Core):** `{b.failing_rules}`")
+            if b.counterexample_model:
+                st.write("**Z3 Satisfying Counterexample Assignment:**")
+                st.json(b.counterexample_model)
 
 
 # ---------------------------------------------------------------------------
-# SCREEN 4: FORMAL REASONING & COUNTEREXAMPLES
+# TAB 2: UNIVERSITY POLICY HANDBOOK
 # ---------------------------------------------------------------------------
-elif screen == "4. Formal Reasoning & Counterexamples":
-    st.header("🔬 Screen 4: Symbolic Reasoning Results & Explanations")
+with tab_handbook:
+    st.subheader("Official Course Catalog & Regulation Rules")
+    st.markdown("Northbridge Institute of Technology (NITech) — Academic Regulations (2026-2027)")
 
-    bundle = getattr(st.session_state, "last_verification", None)
+    col_c1, col_c2 = st.columns([1, 1.2])
 
-    if not bundle:
-        st.warning("No registration query has been executed yet. Go to **Screen 3: Student Eligibility Checker** to submit a query.")
-    else:
-        # 1. Top Decision Badge
-        dec = bundle.decision
-        if dec == DecisionEnum.ELIGIBLE:
-            st.success(f"### 🟢 OFFICIAL VERDICT: {dec.value}")
-        elif dec == DecisionEnum.INELIGIBLE:
-            st.error(f"### 🔴 OFFICIAL VERDICT: {dec.value}")
-        elif dec == DecisionEnum.UNDETERMINED:
-            st.warning(f"### 🟠 OFFICIAL VERDICT: {dec.value}")
-        else:
-            st.error(f"### 🟣 OFFICIAL VERDICT: {dec.value}")
+    with col_c1:
+        st.markdown("#### Course Catalog")
+        courses_data = [
+            {"Code": "CS101", "Course Name": "Python Programming", "Credits": 4, "Prerequisite": "None"},
+            {"Code": "CS201", "Course Name": "Data Structures", "Credits": 4, "Prerequisite": "CS101"},
+            {"Code": "CS301", "Course Name": "Machine Learning", "Credits": 4, "Prerequisite": "CS101 and CS201"},
+            {"Code": "CS401", "Course Name": "Deep Learning", "Credits": 4, "Prerequisite": "CS301"},
+            {"Code": "CS402", "Course Name": "Natural Language Processing", "Credits": 3, "Prerequisite": "CS301"},
+        ]
+        st.table(courses_data)
 
-        st.markdown(f"**Student:** `{bundle.student_name} ({bundle.student_id})` | **Target Course:** `{bundle.target_course}`")
-        st.info(f"**Formal Explanation:**\n\n{bundle.explanation}")
+    with col_c2:
+        st.markdown("#### Core Academic Regulations")
+        st.markdown("""
+        * **Rule R007–R010 (CGPA Requirements):**
+          * CS201 requires minimum **6.0 CGPA**.
+          * CS301 requires minimum **7.0 CGPA**.
+          * CS401 requires minimum **7.5 CGPA**.
+          * CS402 requires minimum **7.0 CGPA**.
+        * **Rule R011 (Probation):** Students on academic probation cannot register for 400-level electives (CS401, CS402).
+        * **Rule R012–R014 (Credit Limits):**
+          * Standard semester limit is **24 credits**.
+          * Final-year students with **CGPA $\ge$ 8.0** and **Department Approval** may take up to **28 credits**.
+          * Absolute ceiling: No student may register for more than 28 credits.
+        * **Rule R006 & R021 (Faculty Waivers):**
+          * A prerequisite can be waived with explicit faculty instructor approval.
+          * Waivers are strictly course-specific and do not carry over to other courses.
+        """)
 
-        # 2. Failing Policies (UNSAT Core)
-        if dec == DecisionEnum.INELIGIBLE and bundle.failing_rule_details:
-            st.subheader("❌ Blocking Policies (Identified via Z3 UNSAT Core)")
-            st.markdown("The solver proved that registration is mathematically impossible due to the following specific rules:")
-            for r in bundle.failing_rule_details:
-                with st.expander(f"Rule [{r['rule_id']}]: {r['title']}", expanded=True):
-                    st.write(f"**Policy Rule:** {r['description']}")
-                    st.caption(f"Citation: `{r['source_doc']}` | Section {r['source_section']} | Passage `{r['passage_id']}`")
-                    st.markdown(f"> *\"{r['source_text']}\"*")
 
-        # 3. Missing Information Handler
-        if dec == DecisionEnum.UNDETERMINED:
-            st.subheader("⚠️ Missing Facts Required to Reach a Decision")
-            st.markdown(
-                "Because certain student attributes are unknown, both **Eligible** and **Ineligible** assignments exist in the solution space."
-            )
-            for mf in bundle.missing_facts:
-                st.error(f"Missing Field: `{mf}`")
-
-        # 4. Counterexample Model Explorer
-        if bundle.counterexample_model:
-            st.subheader("🔬 Z3 Counterexample Model")
-            st.markdown(
-                "The solver constructed a concrete counterexample scenario satisfying domain bounds but violating eligibility:"
-            )
-            st.json(bundle.counterexample_model)
-
-        # 5. RAG Retrieved Evidence
-        st.markdown("---")
-        st.subheader("📚 Supporting Policy Passages (Retrieved via RAG)")
-        for idx, p in enumerate(bundle.retrieved_passages, 1):
-            with st.expander(f"Passage [{p.passage_id}] {p.document} §{p.section} (Similarity Score: {p.score:.3f})"):
-                st.write(p.text)
-                st.caption(f"Page: {p.page_number} | Course Hints: {p.course_hints} | Rule Hints: {p.rule_hints}")
-
-    # Interactive Counterexample Lab (Independent of current query)
-    st.markdown("---")
-    st.subheader("🧪 Interactive Counterexample Lab")
-    st.markdown("Test general claims (hypotheses) about university policies and let Z3 search for a counterexample:")
+# ---------------------------------------------------------------------------
+# TAB 3: COUNTEREXAMPLE LAB
+# ---------------------------------------------------------------------------
+with tab_counterexamples:
+    st.subheader("🔬 Counterexample Verification Lab")
+    st.markdown(
+        "Test general academic claims (common LLM generalizations) and see if the **Z3 Solver** "
+        "can find a concrete counterexample that falsifies the claim:"
+    )
 
     claim_choice = st.selectbox(
-        "Choose an Academic Claim to Test",
+        "Select a Policy Claim to Test",
         [
-            "Claim 1: 'All students with CGPA >= 8.5 are eligible for Machine Learning (CS301)'",
+            "Claim 1: 'All students with high CGPA (>= 8.5) are eligible for Machine Learning (CS301)'",
             "Claim 2: 'Any student who completed CS101 and CS201 is eligible for CS301'",
-            "Claim 3: 'Any student with department approval can register for 28 credits in CS401'",
+            "Claim 3: 'Any student with department approval can take 28 credits in CS401'",
             "Claim 4: 'A faculty waiver granted for CS201 also satisfies prerequisites for CS301'",
-            "Claim 5: 'Any student with CGPA >= 8.0 and not on probation is eligible for CS401'",
+            "Claim 5: 'Any student not on probation with CGPA >= 8.0 is eligible for CS401'",
         ],
     )
 
-    if st.button("Search for Counterexample in Z3"):
-        with st.spinner("Solving Actual_Policies ∧ Claim ∧ ¬Eligibility..."):
+    if st.button("Falsify Claim with Z3 Solver", type="primary"):
+        with st.spinner("Searching for a satisfying assignment that violates the claim..."):
             if "Claim 1" in claim_choice:
                 res = st.session_state.ce_gen.check_claim_high_gpa_implies_eligible("CS301", min_gpa=8.5)
             elif "Claim 2" in claim_choice:
@@ -489,8 +362,16 @@ elif screen == "4. Formal Reasoning & Counterexamples":
                 res = st.session_state.ce_gen.check_claim_good_standing_implies_elective_eligible("CS401")
 
             if res.found:
-                st.error("❌ CLAIM FALSIFIED! Z3 found a concrete counterexample:")
+                st.error("❌ **CLAIM FALSIFIED BY COUNTEREXAMPLE!**")
                 st.markdown(f"**Explanation:** {res.explanation}")
-                st.json(res.counterexample)
+                if res.counterexample:
+                    ce = res.counterexample
+                    st.info(
+                        f"**Concrete Counterexample Student Found:**\n"
+                        f"- Year: `{ce.get('year', 2)}`\n"
+                        f"- CGPA: `{ce.get('cgpa', 'N/A')}`\n"
+                        f"- Completed Courses: CS101={ce.get('completed_CS101', False)}, CS201={ce.get('completed_CS201', False)}\n"
+                        f"- Result under university policy: **Ineligible!**"
+                    )
             else:
-                st.success("✅ CLAIM HOLDS! No counterexample exists under the policy set.")
+                st.success("✅ **CLAIM HOLDS:** No counterexample exists under the university policies.")
